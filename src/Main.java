@@ -2,69 +2,48 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.stream.Collectors;
 
-import AnalizadorLexico.AnalizadorLexico;
-import AnalizadorLexico.TablaSimbolos;
+import AnalizadorSintactico.AnalizadorSintactico;
 
 public class Main {
 
-    static File file; 
+    public static File file; 
     static int numLinea = 0;
-    static BufferedReader br;
+
     static TablaSimbolos ts; 
+    static AnalizadorSintactico as;
+
+    static BufferedReader br;
 
     public static void main(String [] args) throws Exception {
+        args[0] = "C:/Users/Diego Oloarte/Desktop/holaa.c";
+        file = new File(args[0]);
 
-        llenarTabSim();
-
-        if (!abrirArchivo()) 
+        if (!abrirArchivo()) {
+            System.out.println("Error al leer el archivo " + args + ".");
             return;
+        }
 
-        recorrerArchivo();
+
+        as = new AnalizadorSintactico(br);
+        as.analizar();
     }
+
 
     public static boolean abrirArchivo() {
         try {
-            // args[0] = "C:/Users/diieg/OneDrive - Instituto Politecnico Nacional/ESCOM/1ER SEMESTRE/Fundamentos de Programación/1er Parcial/Práctica 4/Ejercicio 1/ejercicio1.c";
-            file = new File("C:/Users/Diego Oloarte/Desktop/hola.c");
             br = new BufferedReader(new FileReader(file));
-            
         } catch (FileNotFoundException e) {
             return false;
         }
 
         return true;
-
     }
 
-    public static void recorrerArchivo() {
-
-        AnalizadorLexico al = new AnalizadorLexico();
-
-        try {
-            String siguienteToken;
-
-            // Le pasamos el código fuente al analizador léxico
-            al.setCodigoFuente(br.lines().collect(Collectors.joining()) + '\0');
-
-            do {
-                siguienteToken = al.siguienteToken();
-                System.out.println(siguienteToken);
-            } while (siguienteToken != "");
-
-
-            
-            
-            br.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }       
-    }
 
     public static void llenarTabSim() {
-        String [] palabrasReservadas = {"auto", "break", "case", "char", "const", "continue", 
+        String [] palabrasReservadas = {
+                                        "auto", "break", "case", "char", "const", "continue", 
                                         "default", "do", "double", "else", "enum", "extern", 
                                         "float", "for", "goto", "if", "int", "long", "main", 
                                         "register", "return", "short", "signed", "sizeof", 

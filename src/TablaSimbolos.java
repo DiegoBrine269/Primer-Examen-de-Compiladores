@@ -1,8 +1,10 @@
-package AnalizadorLexico;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class TablaSimbolos extends Hashtable<String, ArrayList<Integer>>{
+
+    
 
     public void agregarIdentificador(String lexema, int numLinea) {
 
