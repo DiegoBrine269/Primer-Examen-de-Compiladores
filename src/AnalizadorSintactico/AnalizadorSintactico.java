@@ -1,27 +1,24 @@
 package AnalizadorSintactico;
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.stream.Collectors;
+
 import AnalizadorLexico.AnalizadorLexico;
 
 
 public class AnalizadorSintactico {
     AnalizadorLexico al;
 
-    public AnalizadorSintactico(BufferedReader br) {
+    public AnalizadorSintactico(BufferedReader br) throws IOException {
         al = new AnalizadorLexico(br);
     }
 
-    public void analizar () {
+    public void analizar () throws IOException {
 
         String siguienteToken;
 
-        do {
-            siguienteToken = al.siguienteToken();
-            System.out.println(siguienteToken);
-        } while (siguienteToken != null);
+        while ((siguienteToken = al.siguienteToken()) != null) {
+            System.out.println(siguienteToken); 
+        } 
 
     }
 }

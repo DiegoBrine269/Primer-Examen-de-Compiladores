@@ -1,5 +1,6 @@
+package Globales;
 public class Token {
-    String tipo;
+    String tipo; //pr, oprel, oparit, número, literal, char
     String valor;
 
     public void setTipo(String tipo) {
