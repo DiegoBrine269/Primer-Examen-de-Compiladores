@@ -3,6 +3,15 @@ public class Token {
     String tipo; //pr, oprel, oparit, número, literal, char
     String valor;
 
+    public Token() {
+        super();
+    }
+
+    public Token (String tipo, String valor) {
+        this.tipo = tipo;
+        this.valor = valor;
+    }
+
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
