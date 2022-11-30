@@ -3,6 +3,7 @@ package AnalizadorLexico;
 import java.io.BufferedReader;
 import java.io.IOException;
 import Globales.TablaSimbolos;
+import Globales.TipoToken;
 import Globales.Token;
 
 import java.util.ArrayList;
@@ -64,16 +65,18 @@ public class AnalizadorLexico {
         while( c != '\0' ) {
             c = sigCar();
 
-            //Fin de línea
-            if(c == '\0') {
 
-                
+
+            //Fin de línea
+            if(c == '\0') {    
             }
+
+            this.estado = mover(this.estado, c);
+
+            comprobarLexema(lexema);
         }
 
             
-            //Se verifica el estado actual, para decidir si seguir analizando, detenerse o retornar el token
-
         return token;
     }
         
@@ -87,13 +90,41 @@ public class AnalizadorLexico {
     }
 
     private void comprobarLexema(String lexema) {
-        if(compararRegEx(lexema, "_*[a-zA-Z]+[0-9]*"))
-        
+        //Palabra reservada
+        if(TablaSimbolos.contienePR(lexema)) {
+            token.setValor(lexema);
+            token.setTipo(lexema.toUpperCase()); 
+        }
+        //Identificador
+        else if(compararRegEx(lexema, "_*[a-zA-Z]+[0-9]*")) {
+            token.setValor(lexema);
+            token.setTipo(TipoToken.ID);
+        }
+        //Número
+        else if(compararRegEx(lexema, "[0-9]+.?[0-9]*")) {
+            token.setValor(lexema);
+            token.setTipo(TipoToken.NUM);
+        }
+        //Literal
+        else if(compararRegEx(lexema, "\".\"")) {
+            token.setValor(lexema);
+            token.setTipo(TipoToken.LIT);
+        }
+        //Operador relacional
+        else if(compararRegEx(lexema, "<|<=|>|>=")){
+            token.setValor(lexema);
+            token.setTipo(TipoToken.OP_R);
+        }
+        //Operador aritmético
+        else if(compararRegEx(lexema, "+|-|*|/")){
+            token.setValor(lexema);
+            token.setTipo(TipoToken.OP_R);
+        }
     }
     
     /*
         Avanza de línea en el documento
-     */
+    */
     private void siguienteLinea() throws IOException {
         this.linea = this.br.readLine().trim() + '\0';
         this.numLinea++;
@@ -108,6 +139,64 @@ public class AnalizadorLexico {
     private int mover (int s, char c){
         int estadoResultante = -1;
         
+        switch(s) {
+            case 0:
+                if(Character.isLetter(c) || c == '_')
+                    estadoResultante = 1;
+                else if(Character.isDigit(c))
+                    estadoResultante = 3;
+                else if(c == '\"' || c == '\'')
+                    estadoResultante = 6;
+                else if(c == '=')
+                    estadoResultante = 15;
+                else if(c == '<' || c == '>')
+                    estadoResultante = 9;
+                else if (c == '+' || c == '-' || c == '*' || c == '/')
+                    estadoResultante = 13;
+                break;
+
+            case 1:
+                if(Character.isLetter(c) || Character.isDigit(c))
+                    estadoResultante = 1;
+                else
+                    estadoResultante = 2;
+                break;   
+
+            case 3:
+                if(Character.isDigit(c))
+                    estadoResultante = 3;
+                else if(c == '.')
+                    estadoResultante = 4;
+                else
+                    estadoResultante = 5;
+                break;   
+
+            case 4:
+                if(Character.isDigit(c))
+                    estadoResultante = 4;
+                else
+                    estadoResultante = 5;
+                break;  
+
+            case 7:
+                estadoResultante = 8;
+                break;
+
+            case 9:
+                if (c == '=')
+                    estadoResultante = 11;
+                else 
+                    estadoResultante = 10;
+                break;
+
+
+            case 15:
+                if(c == '=')
+                    estadoResultante = 11;
+                else 
+                    estadoResultante = 16;
+                break;
+        }
 
         return estadoResultante;
     }

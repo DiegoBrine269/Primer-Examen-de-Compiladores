@@ -39,7 +39,7 @@ public interface TipoToken {
     final String WHILE = "while";
     final String _PACKED = "_Packed";
 
-
+    //Identificador
     final String ID = "ID";
 
     final String NUM = "NUM";
@@ -49,8 +49,15 @@ public interface TipoToken {
     final String OP_A = "OP_A";
     final String OP_R = "OP_R";
 
-    // Símbolos especiales como (, ), {, }, [, ],
+    //Asignación (=)
+    final String ASIGN = "=";
+
+    //Fin de instricción (;)
+    final String EOI = ";";
+
+    // Símbolos especiales
     final String SE = "SE";
 
+    // Puntuación
     final String PUNT = "PUNT";
 }

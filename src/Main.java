@@ -31,7 +31,7 @@ public class Main {
         as = new AnalizadorSintactico(br);
         as.analizar();
 
-        System.out.println("\n\nTABLA DE CARACTERES");
+        System.out.println("\n\nTABLA DE SÍMBOLOS");
         TablaSimbolos.imprimir();
     }
 
