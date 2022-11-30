@@ -59,6 +59,13 @@ public class AnalizadorLexico {
 
             if(c == '\0') {
 
+                //Apóstrofe no cerrada
+                if(this.estado == 51){
+                    System.out.println("Error en la línea " + numLinea);
+                    System.exit(-1);
+                }
+
+
                 //Si ya llegó al fin de la línea, verificar si es token válido y retornar
                 comprobarToken(token);
                 try {
@@ -98,9 +105,8 @@ public class AnalizadorLexico {
             else if(this.estado == 1 || this.estado == 61 || this.estado == 11 || this.estado == 12 || this.estado == 13 || this.estado == 6 || this.estado == 5 || this.estado == 51 || this.estado == 52 ) {
                 token += c;
             }
-            else if(this.estado == 2) {
+            else if(this.estado == 2 || this.estado == 15) {
                 comprobarToken(token);
-
                 break;
             }
             else if(this.estado == 10){
@@ -189,6 +195,8 @@ public class AnalizadorLexico {
                     estadoResultante = 11;
                 else if (c == '#')
                     estadoResultante = 0;
+                else if (c == '=')
+                    estadoResultante = 15;
                 else 
                     estadoResultante = 4;
                     break;
