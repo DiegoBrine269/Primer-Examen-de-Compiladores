@@ -39,8 +39,6 @@ public class AnalizadorLexico {
     }
 
     public Token siguienteToken() throws IOException {
-        
-        token = new Token();
         String lexema = "";
 
         //Si no hay línea, ya es eof
@@ -73,7 +71,40 @@ public class AnalizadorLexico {
 
             this.estado = mover(this.estado, c);
 
-            comprobarLexema(lexema);
+            //Concatenar
+            if(this.estado == 1 || this.estado == 3 || this.estado == 4 || this.estado == 6 || this.estado == 7 || this.estado == 11 || this.estado == 13)
+                lexema += c;
+            //Retornar
+            else {
+                this.cursor --;
+                switch (this.estado) {
+                    case 2:
+                        if(TablaSimbolos.contienePR(lexema))
+                            return new Token(lexema, lexema.toUpperCase());
+                        else
+                            return new Token(lexema, TipoToken.ID);
+                    case 5:
+                        return new Token(lexema, TipoToken.NUM);
+
+                    case 8:
+                        return new Token(lexema, TipoToken.LIT);
+
+                    case 10:
+                        return new Token(lexema, TipoToken.OP_R);
+
+                    case 12:
+                        return new Token(lexema, TipoToken.OP_R);
+
+                    case 14:
+                        return new Token(lexema, TipoToken.OP_A);
+
+                    case 16:
+                        return new Token(lexema, TipoToken.ASIGN);
+
+                    case 17:
+                        return new Token(lexema, TipoToken.EOI);
+                }
+            }
         }
 
             
@@ -89,38 +120,6 @@ public class AnalizadorLexico {
         return this.linea.charAt(cursor);
     }
 
-    private void comprobarLexema(String lexema) {
-        //Palabra reservada
-        if(TablaSimbolos.contienePR(lexema)) {
-            token.setValor(lexema);
-            token.setTipo(lexema.toUpperCase()); 
-        }
-        //Identificador
-        else if(compararRegEx(lexema, "_*[a-zA-Z]+[0-9]*")) {
-            token.setValor(lexema);
-            token.setTipo(TipoToken.ID);
-        }
-        //Número
-        else if(compararRegEx(lexema, "[0-9]+.?[0-9]*")) {
-            token.setValor(lexema);
-            token.setTipo(TipoToken.NUM);
-        }
-        //Literal
-        else if(compararRegEx(lexema, "\".\"")) {
-            token.setValor(lexema);
-            token.setTipo(TipoToken.LIT);
-        }
-        //Operador relacional
-        else if(compararRegEx(lexema, "<|<=|>|>=")){
-            token.setValor(lexema);
-            token.setTipo(TipoToken.OP_R);
-        }
-        //Operador aritmético
-        else if(compararRegEx(lexema, "+|-|*|/")){
-            token.setValor(lexema);
-            token.setTipo(TipoToken.OP_R);
-        }
-    }
     
     /*
         Avanza de línea en el documento
@@ -189,6 +188,13 @@ public class AnalizadorLexico {
                     estadoResultante = 10;
                 break;
 
+            case 11:
+                estadoResultante = 12;
+                break;
+
+            case 13:
+                estadoResultante = 14;
+                break;
 
             case 15:
                 if(c == '=')
@@ -199,12 +205,5 @@ public class AnalizadorLexico {
         }
 
         return estadoResultante;
-    }
-
-    private static boolean compararRegEx(String input, String regex) {
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(input);
-        return matcher.find();
-
     }
 }

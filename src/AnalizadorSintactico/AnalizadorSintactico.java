@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import AnalizadorLexico.AnalizadorLexico;
+import Globales.Token;
 
 
 public class AnalizadorSintactico {
@@ -14,7 +15,7 @@ public class AnalizadorSintactico {
 
     public void analizar () throws IOException {
 
-        String siguienteToken;
+        Token siguienteToken;
 
         while ((siguienteToken = al.siguienteToken()) != null) {
             System.out.println(siguienteToken); 
