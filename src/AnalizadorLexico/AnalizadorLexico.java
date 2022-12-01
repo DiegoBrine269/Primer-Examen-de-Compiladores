@@ -6,10 +6,6 @@ import Globales.TablaSimbolos;
 import Globales.TipoToken;
 import Globales.Token;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AnalizadorLexico {
     // Posición actual de la línea
@@ -47,7 +43,7 @@ public class AnalizadorLexico {
         } 
 
         //La línea es un commentario
-        if(this.linea.startsWith("//") || this.linea == "" || this.linea == " " || this.linea == null || this.linea == "\0") {
+        while(this.linea.startsWith("//") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null || this.linea.equals("\0") || this.linea.trim().isEmpty()) {
             siguienteLinea();
         }
 
