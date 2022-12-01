@@ -18,7 +18,7 @@ public class AnalizadorSintactico {
         Token siguienteToken;
 
         while ((siguienteToken = al.siguienteToken()) != null) {
-            System.out.println(siguienteToken); 
+            System.out.println("<" + siguienteToken.getTipo() + ", " + siguienteToken.getValor() + ">"); 
         } 
 
     }

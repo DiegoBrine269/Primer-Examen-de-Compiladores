@@ -47,14 +47,8 @@ public class AnalizadorLexico {
         } 
 
         //La línea es un commentario
-        if(this.linea.startsWith("//")) {
-            try {
-                siguienteLinea();
-            }
-            catch(NullPointerException ex) {
-                //En este caso, ya no hay más líneas
-                return null;
-            }
+        if(this.linea.startsWith("//") || this.linea == "" || this.linea == " " || this.linea == null || this.linea == "\0") {
+            siguienteLinea();
         }
 
         //Inicio de análisis 
@@ -64,49 +58,52 @@ public class AnalizadorLexico {
             c = sigCar();
 
 
-
-            //Fin de línea
-            if(c == '\0') {    
-            }
-
             this.estado = mover(this.estado, c);
 
             //Concatenar
-            if(this.estado == 1 || this.estado == 3 || this.estado == 4 || this.estado == 6 || this.estado == 7 || this.estado == 11 || this.estado == 13)
+            if(this.estado == 1 || this.estado == 3 || this.estado == 4 || this.estado == 6 || this.estado == 7 || this.estado == 11 || this.estado == 13 || this.estado == 15 || this.estado == 17 || this.estado == 18)
                 lexema += c;
             //Retornar
-            else {
-                this.cursor --;
+            else if(this.estado != 0){
+
+                if(c == '\0') {   
+                    if(!siguienteLinea()) 
+                        System.exit(1);
+                }else
+                    this.cursor --;
+
                 switch (this.estado) {
                     case 2:
                         if(TablaSimbolos.contienePR(lexema))
-                            return new Token(lexema, lexema.toUpperCase());
+                            return retornarToken(lexema, lexema.toUpperCase());
                         else
-                            return new Token(lexema, TipoToken.ID);
+                            return retornarToken(lexema, TipoToken.ID);
                     case 5:
-                        return new Token(lexema, TipoToken.NUM);
+                        return retornarToken(lexema, TipoToken.NUM);
 
                     case 8:
-                        return new Token(lexema, TipoToken.LIT);
+                        return retornarToken(lexema, TipoToken.LIT);
 
                     case 10:
-                        return new Token(lexema, TipoToken.OP_R);
+                        return retornarToken(lexema, TipoToken.OP_R);
 
                     case 12:
-                        return new Token(lexema, TipoToken.OP_R);
+                        return retornarToken(lexema, TipoToken.OP_R);
 
                     case 14:
-                        return new Token(lexema, TipoToken.OP_A);
+                        return retornarToken(lexema, TipoToken.OP_A);
 
                     case 16:
-                        return new Token(lexema, TipoToken.ASIGN);
+                        return retornarToken(lexema, TipoToken.ASIGN);
 
-                    case 17:
-                        return new Token(lexema, TipoToken.EOI);
+                    case 19:
+                        return retornarToken(lexema, TipoToken.SE);
+
+                    case 20:
+                        return retornarToken(lexema, TipoToken.EOI);
                 }
             }
         }
-
             
         return token;
     }
@@ -124,9 +121,26 @@ public class AnalizadorLexico {
     /*
         Avanza de línea en el documento
     */
-    private void siguienteLinea() throws IOException {
-        this.linea = this.br.readLine().trim() + '\0';
-        this.numLinea++;
+    private boolean siguienteLinea() throws IOException {
+        try {
+            this.linea = this.br.readLine().trim() + '\0';
+
+            //Línea vacía
+            if(this.linea == null)
+                this.linea = "";
+
+            //Eliminando comentarios que no estén desde el principio
+            if(this.linea.contains("//") && !this.linea.startsWith("//"))
+                this.linea = this.linea.substring(0, this.linea.indexOf("//")).trim() + '\0';
+            
+            this.numLinea++;
+            this.cursor = -1;
+            return true;
+        }
+        catch(NullPointerException ex) {
+            //En este caso, ya no hay más líneas
+            return false;
+        }
     }
 
 
@@ -140,6 +154,8 @@ public class AnalizadorLexico {
         
         switch(s) {
             case 0:
+                if(c == ' ' || c == '\0') 
+                    estadoResultante = 0;
                 if(Character.isLetter(c) || c == '_')
                     estadoResultante = 1;
                 else if(Character.isDigit(c))
@@ -152,6 +168,10 @@ public class AnalizadorLexico {
                     estadoResultante = 9;
                 else if (c == '+' || c == '-' || c == '*' || c == '/')
                     estadoResultante = 13;
+                else if (c == ';')
+                    estadoResultante = 17;
+                else if (c == '{' || c == '}' || c == '[' || c == ']' || c == '(' || c == ')')
+                    estadoResultante = 18;
                 break;
 
             case 1:
@@ -177,6 +197,13 @@ public class AnalizadorLexico {
                     estadoResultante = 5;
                 break;  
 
+            case 6: 
+                if(c == '\"' || c == '\'')
+                    estadoResultante = 7;
+                else 
+                    estadoResultante = 6;
+                break;
+            
             case 7:
                 estadoResultante = 8;
                 break;
@@ -202,8 +229,21 @@ public class AnalizadorLexico {
                 else 
                     estadoResultante = 16;
                 break;
+
+            case 17:
+                estadoResultante = 20;
+                break;
+            
+            case 18:
+                estadoResultante = 19;
+                break;
         }
 
         return estadoResultante;
+    }
+
+    private Token retornarToken(String tipo, String valor) {
+        this.estado = 0;
+        return new Token(tipo, valor);
     }
 }

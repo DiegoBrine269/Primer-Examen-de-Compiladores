@@ -50,10 +50,10 @@ public interface TipoToken {
     final String OP_R = "OP_R";
 
     //Asignación (=)
-    final String ASIGN = "=";
+    final String ASIGN = "ASIGN";
 
     //Fin de instricción (;)
-    final String EOI = ";";
+    final String EOI = "EOI";
 
     // Símbolos especiales
     final String SE = "SE";
