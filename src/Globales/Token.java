@@ -7,7 +7,7 @@ public class Token {
         super();
     }
 
-    public Token (String tipo, String valor) {
+    public Token (String valor, String tipo) {
         this.tipo = tipo;
         this.valor = valor;
     }

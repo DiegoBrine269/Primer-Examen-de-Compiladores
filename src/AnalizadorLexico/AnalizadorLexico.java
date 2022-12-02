@@ -23,8 +23,10 @@ public class AnalizadorLexico {
     //Leyendo comentarios o cadenas entre comillas o apóstrofes
     boolean ignorar = false;
 
+    boolean eof = false;
     //Lector de archivo
     BufferedReader br;
+
 
     Token token;
 
@@ -35,16 +37,23 @@ public class AnalizadorLexico {
     }
 
     public Token siguienteToken() throws IOException {
+
+        if (this.eof)
+            return null;
+
         String lexema = "";
 
-        //Si no hay línea, ya es eof
-        if(this.linea == null) {
-            return null;
-        } 
-
         //La línea es un commentario
-        while(this.linea.startsWith("//") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null || this.linea.equals("\0") || this.linea.trim().isEmpty()) {
+        while(this.linea.startsWith("//") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null ) {
             siguienteLinea();
+        }
+
+
+        //Saltamos todos los comenttarios multilínea
+        if(this.linea.startsWith("/*")) {
+            do {
+                siguienteLinea();
+            } while(!this.linea.contains("*/"));               
         }
 
         //Inicio de análisis 
@@ -56,15 +65,25 @@ public class AnalizadorLexico {
 
             this.estado = mover(this.estado, c);
 
+
+
+            //Estado de error
+            if(this.estado == -1){
+                System.out.println("Error en la línea " + this.numLinea);
+                System.exit(-1);
+            }
             //Concatenar
-            if(this.estado == 1 || this.estado == 3 || this.estado == 4 || this.estado == 6 || this.estado == 7 || this.estado == 11 || this.estado == 13 || this.estado == 15 || this.estado == 17 || this.estado == 18)
+            else if(this.estado == 1 || this.estado == 3 || this.estado == 4 || this.estado == 6 || this.estado == 7 || this.estado == 9 || this.estado == 11 || this.estado == 13 || this.estado == 15 || this.estado == 17 || this.estado == 18 || this.estado == 21 || this.estado == 23 || this.estado == 25 || this.estado == 26)
                 lexema += c;
+            //Fin de comentario multilínea
+            else if(this.estado == 29){
+                lexema = "";
+            }
             //Retornar
             else if(this.estado != 0){
 
                 if(c == '\0') {   
-                    if(!siguienteLinea()) 
-                        System.exit(1);
+                    this.eof = !siguienteLinea();
                 }else
                     this.cursor --;
 
@@ -97,6 +116,15 @@ public class AnalizadorLexico {
 
                     case 20:
                         return retornarToken(lexema, TipoToken.EOI);
+                    
+                    case 22:
+                        return retornarToken(lexema, TipoToken.DIRECT);
+                    
+                    case 24:
+                        return retornarToken(lexema, TipoToken.COMA);
+                        
+                    case 27:
+                        return retornarToken(lexema, TipoToken.BIBLIO);
                 }
             }
         }
@@ -104,9 +132,6 @@ public class AnalizadorLexico {
         return token;
     }
         
-
-        
-    
 
     private char sigCar () {
         this.cursor++;
@@ -122,13 +147,19 @@ public class AnalizadorLexico {
             this.linea = this.br.readLine().trim() + '\0';
 
             //Línea vacía
-            if(this.linea == null)
+            if(this.linea.equals("\0"))
                 this.linea = "";
 
             //Eliminando comentarios que no estén desde el principio
             if(this.linea.contains("//") && !this.linea.startsWith("//"))
                 this.linea = this.linea.substring(0, this.linea.indexOf("//")).trim() + '\0';
+
+            //Eliminando fin de comentario multilínea
+            if(this.linea.contains("*/"))
+                this.linea = this.linea.replace("*/", "");
             
+
+
             this.numLinea++;
             this.cursor = -1;
             return true;
@@ -168,11 +199,17 @@ public class AnalizadorLexico {
                     estadoResultante = 17;
                 else if (c == '{' || c == '}' || c == '[' || c == ']' || c == '(' || c == ')')
                     estadoResultante = 18;
+                else if (c == '#')
+                    estadoResultante = 21;
+                else if (c == ',')
+                    estadoResultante = 23;
                 break;
 
             case 1:
                 if(Character.isLetter(c) || Character.isDigit(c))
                     estadoResultante = 1;
+                else if (c == '.')
+                    estadoResultante = 25;
                 else
                     estadoResultante = 2;
                 break;   
@@ -180,6 +217,8 @@ public class AnalizadorLexico {
             case 3:
                 if(Character.isDigit(c))
                     estadoResultante = 3;
+                else if(Character.isLetter(c))
+                    estadoResultante = -1;
                 else if(c == '.')
                     estadoResultante = 4;
                 else
@@ -189,6 +228,8 @@ public class AnalizadorLexico {
             case 4:
                 if(Character.isDigit(c))
                     estadoResultante = 4;
+                else if(Character.isLetter(c))
+                    estadoResultante = -1;
                 else
                     estadoResultante = 5;
                 break;  
@@ -233,12 +274,36 @@ public class AnalizadorLexico {
             case 18:
                 estadoResultante = 19;
                 break;
+
+            case 21:
+                if(Character.isLetter(c))
+                    estadoResultante = 21;
+                else
+                    estadoResultante = 22;
+                break;
+            
+            case 23:
+                estadoResultante = 24;
+                break;
+
+
+            case 25:
+                if(c == 'c' || c == 'h')
+                    estadoResultante = 26;
+                break;
+
+            case 26:
+                estadoResultante = 27;
+                break;
+        
         }
+
 
         return estadoResultante;
     }
 
     private Token retornarToken(String tipo, String valor) {
+        
         this.estado = 0;
         return new Token(tipo, valor);
     }

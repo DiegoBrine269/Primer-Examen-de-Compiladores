@@ -60,4 +60,13 @@ public interface TipoToken {
 
     // Puntuación
     final String PUNT = "PUNT";
+
+    //Directivas #ifdef, #else, #endif
+    final String DIRECT = "DIREC";
+
+    //Bibliotecas como stdio.h
+    final String BIBLIO = "BIBLIO";
+
+    //Coma
+    final String COMA = "COMA";
 }
