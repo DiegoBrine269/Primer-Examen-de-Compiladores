@@ -53,7 +53,18 @@ public class AnalizadorLexico {
         if(this.linea.startsWith("/*")) {
             do {
                 siguienteLinea();
-            } while(!this.linea.contains("*/"));               
+            } while(!this.linea.contains("*/"));  
+
+            //Fin de comentarios multilínea
+            while(this.linea.equals("*/\0") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null ) {
+                siguienteLinea();
+                
+            }
+            
+            //Fin de comentarios multilínea, pero con token adjunto
+            while(this.linea.contains("*/") && !this.linea.equals("*/\0")){
+                this.linea.replace("*/", "");
+            }
         }
 
         //Inicio de análisis 
@@ -133,6 +144,9 @@ public class AnalizadorLexico {
     }
         
 
+        
+    
+
     private char sigCar () {
         this.cursor++;
         return this.linea.charAt(cursor);
@@ -154,10 +168,7 @@ public class AnalizadorLexico {
             if(this.linea.contains("//") && !this.linea.startsWith("//"))
                 this.linea = this.linea.substring(0, this.linea.indexOf("//")).trim() + '\0';
 
-            //Eliminando fin de comentario multilínea
-            if(this.linea.contains("*/"))
-                this.linea = this.linea.replace("*/", "");
-            
+
 
 
             this.numLinea++;
