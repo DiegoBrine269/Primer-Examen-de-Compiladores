@@ -62,8 +62,8 @@ public class AnalizadorLexico {
             }
             
             //Fin de comentarios multilínea, pero con token adjunto
-            while(this.linea.contains("*/") && !this.linea.equals("*/\0")){
-                this.linea.replace("*/", "");
+            if(this.linea.contains("*/") && !this.linea.equals("*/\0")){
+                this.linea = this.linea.replace("*/", "");
             }
         }
 

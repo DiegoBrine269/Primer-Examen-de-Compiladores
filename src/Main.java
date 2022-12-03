@@ -20,7 +20,7 @@ public class Main {
         //     System.exit(0);
         // }
 
-        String a = "C:/Users/Diego Oloarte/Desktop/hola.c";
+        String a = "C:/Users/Diego Oloarte/Desktop/queue.c";
 
         if (!abrirArchivo(a)) {
             System.out.println("Error al leer el archivo " + a + ".");
