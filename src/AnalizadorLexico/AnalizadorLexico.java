@@ -38,34 +38,44 @@ public class AnalizadorLexico {
 
     public Token siguienteToken() throws IOException {
 
-        if (this.eof)
-            return null;
-
+        boolean lineaValida = false;
         String lexema = "";
 
-        //La línea es un commentario
-        while(this.linea.startsWith("//") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null ) {
-            siguienteLinea();
-        }
-
-
-        //Saltamos todos los comenttarios multilínea
-        if(this.linea.startsWith("/*")) {
-            do {
-                siguienteLinea();
-            } while(!this.linea.contains("*/"));  
-
-            //Fin de comentarios multilínea
-            while(this.linea.equals("*/\0") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null ) {
-                siguienteLinea();
-                
-            }
+        do {
             
-            //Fin de comentarios multilínea, pero con token adjunto
-            if(this.linea.contains("*/") && !this.linea.equals("*/\0")){
-                this.linea = this.linea.replace("*/", "");
+            if (this.eof)
+                return null;
+
+
+            //La línea es un commentario
+            while(this.linea.startsWith("//") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null ) {
+                siguienteLinea();
             }
-        }
+
+
+            //Saltamos todos los comentarios multilínea
+            if(this.linea.startsWith("/*")) {
+                do {
+                    siguienteLinea();
+                } while(!this.linea.contains("*/"));  
+
+                //Fin de comentarios multilínea
+                while(this.linea.equals("*/\0") || this.linea.equals("") || this.linea.equals(" ") || this.linea == null ) {
+                    siguienteLinea();
+                }
+                
+                //Fin de comentarios multilínea, pero con token adjunto
+                if(this.linea.contains("*/") && !this.linea.equals("*/\0")){
+                    this.linea = this.linea.replaceAll("(\\*)*(/)*", "");
+                }
+
+            }
+
+            if(!this.linea.equals("") && !this.linea.equals(" ") && this.linea != null && !this.linea.equals("\0")) {
+                lineaValida = true;
+            }
+        } while(!lineaValida);
+        
 
         //Inicio de análisis 
         char c = '-';
@@ -101,41 +111,41 @@ public class AnalizadorLexico {
                 switch (this.estado) {
                     case 2:
                         if(TablaSimbolos.contienePR(lexema))
-                            return retornarToken(lexema, lexema.toUpperCase());
+                            return retornarToken(lexema.toUpperCase(), lexema);
                         else
-                            return retornarToken(lexema, TipoToken.ID);
+                            return retornarToken(TipoToken.ID, lexema);
                     case 5:
-                        return retornarToken(lexema, TipoToken.NUM);
+                        return retornarToken(TipoToken.NUM, lexema);
 
                     case 8:
-                        return retornarToken(lexema, TipoToken.LIT);
+                        return retornarToken(TipoToken.LIT, lexema);
 
                     case 10:
-                        return retornarToken(lexema, TipoToken.OP_R);
+                        return retornarToken(TipoToken.OP_R, lexema);
 
                     case 12:
-                        return retornarToken(lexema, TipoToken.OP_R);
+                        return retornarToken(TipoToken.OP_R, lexema);
 
                     case 14:
-                        return retornarToken(lexema, TipoToken.OP_A);
+                        return retornarToken(TipoToken.OP_A, lexema);
 
                     case 16:
-                        return retornarToken(lexema, TipoToken.ASIGN);
+                        return retornarToken(TipoToken.ASIGN, lexema);
 
                     case 19:
-                        return retornarToken(lexema, TipoToken.SE);
+                        return retornarToken(TipoToken.SE, lexema);
 
                     case 20:
-                        return retornarToken(lexema, TipoToken.EOI);
+                        return retornarToken(TipoToken.EOI, lexema);
                     
                     case 22:
-                        return retornarToken(lexema, TipoToken.DIRECT);
+                        return retornarToken(TipoToken.DIRECT, lexema);
                     
                     case 24:
-                        return retornarToken(lexema, TipoToken.COMA);
+                        return retornarToken(TipoToken.COMA, lexema);
                         
                     case 27:
-                        return retornarToken(lexema, TipoToken.BIBLIO);
+                        return retornarToken(TipoToken.BIBLIO, lexema);
                 }
             }
         }
@@ -208,7 +218,7 @@ public class AnalizadorLexico {
                     estadoResultante = 13;
                 else if (c == ';')
                     estadoResultante = 17;
-                else if (c == '{' || c == '}' || c == '[' || c == ']' || c == '(' || c == ')')
+                else if (c == '&' || c == '{' || c == '}' || c == '[' || c == ']' || c == '(' || c == ')')
                     estadoResultante = 18;
                 else if (c == '#')
                     estadoResultante = 21;
